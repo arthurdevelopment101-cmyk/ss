@@ -8,7 +8,7 @@ interface CheckoutFlowProps {
   onClose: () => void;
   cartItems: CartItem[];
   subtotal: number;
-  tax: number;
+  deliveryFee: number;
   discount: number;
   total: number;
   promoCode: string;
@@ -37,7 +37,7 @@ export default function CheckoutFlow({
   onClose,
   cartItems,
   subtotal,
-  tax,
+  deliveryFee,
   discount,
   total,
   promoCode,
@@ -56,6 +56,7 @@ export default function CheckoutFlow({
   const [shippingAddress, setShippingAddress] = React.useState("");
   const [shippingCity, setShippingCity] = React.useState("");
   const [shippingZip, setShippingZip] = React.useState("");
+  const [shippingPhone, setShippingPhone] = React.useState("");
   const [cardNumber, setCardNumber] = React.useState("");
   const [cardExpiry, setCardExpiry] = React.useState("");
   const [cardCVV, setCardCVV] = React.useState("");
@@ -73,7 +74,7 @@ export default function CheckoutFlow({
     const discountVal = usePoints ? pointsCalculation.cashDiscount : 0;
     const finalPayable = Math.max(0, total - discountVal);
     const itemsList = cartItems.map(item => `- ${item.product.name} (${item.selectedSize || "One Size"} / ${item.selectedMaterial || "Platinum"}) x${item.quantity} - EGP ${(item.product.price * item.quantity).toLocaleString()}`).join("\n");
-    const message = `مرحباً بوتيك فيرو VERO Boutique ⚜️\nأود تأكيد طلبي الجديد:\n\nرقم الطلب: ${orderNum}\nالاسم: ${shippingName}\nالبريد الإلكتروني: ${shippingEmail}\nالعنوان: ${shippingAddress}، ${shippingCity}، ${shippingZip}\n\nالمنتجات:\n${itemsList}\n\nإجمالي المبلغ المطلوب: EGP ${finalPayable.toLocaleString()}\n\nيرجى تأكيد استلام الطلب وبدء الشحن من فلورنسا. شكراً لكم!`;
+    const message = `مرحباً بوتيك فيرو VERO Boutique ⚜️\nأود تأكيد طلبي الجديد:\n\nرقم الطلب: ${orderNum}\nالاسم: ${shippingName}\nالبريد الإلكتروني: ${shippingEmail}\nالهاتف: ${shippingPhone}\nالعنوان: ${shippingAddress}، ${shippingCity}، ${shippingZip}\n\nالمنتجات:\n${itemsList}\n\nإجمالي المبلغ المطلوب: EGP ${finalPayable.toLocaleString()}\n\nيرجى تأكيد استلام الطلب وبدء الشحن من فلورنسا. شكراً لكم!`;
     return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   };
 
@@ -137,7 +138,8 @@ export default function CheckoutFlow({
       status: "In Transit from Florence",
       itemsCount: cartItems.length,
       itemName: cartItems[0]?.product.name || "Boutique Order",
-      email: shippingEmail.toLowerCase()
+      email: shippingEmail.toLowerCase(),
+      shippingPhone
     };
 
     const fullOrderDetails = {
@@ -148,6 +150,7 @@ export default function CheckoutFlow({
       status: "Pending / قيد الانتظار",
       shippingName,
       shippingEmail: shippingEmail.toLowerCase(),
+      shippingPhone,
       shippingAddress,
       shippingCity,
       shippingZip,
@@ -341,7 +344,8 @@ export default function CheckoutFlow({
       status: "In Transit from Florence",
       itemsCount: cartItems.length,
       itemName: cartItems[0]?.product.name || "Boutique Order",
-      email: shippingEmail.toLowerCase()
+      email: shippingEmail.toLowerCase(),
+      shippingPhone
     };
 
     const fullOrderDetails = {
@@ -352,6 +356,7 @@ export default function CheckoutFlow({
       status: "Pending / قيد الانتظار",
       shippingName,
       shippingEmail: shippingEmail.toLowerCase(),
+      shippingPhone,
       shippingAddress,
       shippingCity,
       shippingZip,
@@ -507,6 +512,20 @@ export default function CheckoutFlow({
                       value={shippingEmail}
                       onChange={(e) => setShippingEmail(e.target.value)}
                       placeholder="E.g. elena@luxury.com"
+                      className="w-full bg-transparent border-b border-brand-outline-variant focus:border-brand-gold outline-none py-2 text-xs font-light"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-semibold text-brand-outline uppercase tracking-wider block">
+                      Phone Number / رقم الهاتف
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      value={shippingPhone}
+                      onChange={(e) => setShippingPhone(e.target.value)}
+                      placeholder="E.g. +20 101 234 5678"
                       className="w-full bg-transparent border-b border-brand-outline-variant focus:border-brand-gold outline-none py-2 text-xs font-light"
                     />
                   </div>
@@ -696,8 +715,8 @@ export default function CheckoutFlow({
                     </div>
                   )}
                   <div className="flex justify-between text-xs text-brand-outline font-light">
-                    <span>Tax (8%)</span>
-                    <span>EGP {tax.toLocaleString()}</span>
+                    <span>Delivery Fee / سعر التوصيل</span>
+                    <span>EGP {deliveryFee.toLocaleString()}</span>
                   </div>
                   <div className="h-px bg-brand-outline-variant/10 w-full pt-1" />
                   <div className="flex justify-between items-end font-serif font-semibold text-brand-umber text-base pt-1">

@@ -64,6 +64,7 @@ export interface Order {
   shippingAddress: string;
   shippingCity: string;
   shippingZip: string;
+  shippingPhone?: string;
   items: {
     product: {
       id: string;

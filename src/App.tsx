@@ -704,13 +704,12 @@ export default function App() {
 
   // Cart calculations
   const cartSubtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const taxRate = 0.08; // 8%
+  const deliveryFee = cart.length > 0 ? 150 : 0; // Flat-rate delivery fee
   
   // Promo code discounts
   const discountMultiplier = activePromo === "WELCOME10" ? 0.1 : activePromo === "VERO" ? 0.15 : 0;
   const discountAmount = cartSubtotal * discountMultiplier;
-  const estimatedTax = (cartSubtotal - discountAmount) * taxRate;
-  const cartTotal = cartSubtotal - discountAmount + estimatedTax;
+  const cartTotal = cartSubtotal - discountAmount + deliveryFee;
 
   const handleApplyPromo = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1737,15 +1736,9 @@ export default function App() {
                           </div>
                         )}
                         <div className="flex justify-between">
-                          <span>SHIPPING</span>
-                          <span className="font-semibold text-brand-gold uppercase tracking-wider text-[10px]">
-                            COMPLIMENTARY
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>ESTIMATED TAX (8%)</span>
+                          <span>DELIVERY / التوصيل</span>
                           <span className="font-semibold text-brand-umber">
-                            EGP {estimatedTax.toLocaleString()}
+                            EGP {deliveryFee.toLocaleString()}
                           </span>
                         </div>
                       </div>
@@ -2782,7 +2775,7 @@ export default function App() {
         onClose={() => setCheckoutOpen(false)}
         cartItems={cart}
         subtotal={cartSubtotal}
-        tax={estimatedTax}
+        deliveryFee={deliveryFee}
         discount={discountAmount}
         total={cartTotal}
         promoCode={activePromo}

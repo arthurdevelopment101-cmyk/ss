@@ -140,6 +140,7 @@ export default function AdminPanel({
         order.shippingEmail?.toLowerCase().includes(searchLower) ||
         order.shippingAddress?.toLowerCase().includes(searchLower) ||
         order.shippingCity?.toLowerCase().includes(searchLower) ||
+        order.shippingPhone?.toLowerCase().includes(searchLower) ||
         order.status?.toLowerCase().includes(searchLower);
 
       // 2. Status filter
@@ -690,6 +691,7 @@ export default function AdminPanel({
                         <div className="text-xs space-y-1.5 text-brand-umber font-light">
                           <p><strong className="font-medium">Name:</strong> {selectedOrder.shippingName}</p>
                           <p><strong className="font-medium">Email:</strong> {selectedOrder.shippingEmail}</p>
+                          <p><strong className="font-medium">Phone / الهاتف:</strong> {selectedOrder.shippingPhone || "Not Provided / غير متوفر"}</p>
                           <p><strong className="font-medium">Address:</strong> {selectedOrder.shippingAddress}</p>
                           <p><strong className="font-medium">City:</strong> {selectedOrder.shippingCity}</p>
                           {selectedOrder.shippingZip && <p><strong className="font-medium">ZIP:</strong> {selectedOrder.shippingZip}</p>}
