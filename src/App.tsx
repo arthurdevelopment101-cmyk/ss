@@ -321,23 +321,28 @@ export default function App() {
 
     let eventSource: EventSource | null = null;
     let reconnectTimeout: any = null;
+    let retryCount = 0;
+    const maxRetries = 2;
 
     const connectSSE = () => {
-      console.log("Connecting to real-time updates via SSE...");
+      if (retryCount >= maxRetries) {
+        return;
+      }
       eventSource = new EventSource("/api/updates");
 
       eventSource.onmessage = (event) => {
         if (event.data === "REFRESH") {
-          console.log("Real-time update event received! Fetching fresh data...");
           fetchProducts();
           fetchOrders();
         }
       };
 
-      eventSource.onerror = (err) => {
-        console.warn("SSE connection lost. Reconnecting in 3s...");
+      eventSource.onerror = () => {
+        retryCount++;
         if (eventSource) eventSource.close();
-        reconnectTimeout = setTimeout(connectSSE, 3000);
+        if (retryCount < maxRetries) {
+          reconnectTimeout = setTimeout(connectSSE, 5000);
+        }
       };
     };
 
@@ -572,23 +577,59 @@ export default function App() {
   const mergedRecentOrders = React.useMemo(() => {
     try {
       const saved = localStorage.getItem("vero_orders");
-      const local: Order[] = saved ? JSON.parse(saved) : [];
-      return local.map(localOrd => {
+      const local: any[] = saved ? JSON.parse(saved) : [];
+      
+      const userEmail = user?.email?.toLowerCase();
+      const serverUserOrders = userEmail 
+        ? orders.filter(o => o.shippingEmail?.toLowerCase() === userEmail)
+        : [];
+
+      const allOrdersMap = new Map<string, any>();
+
+      // First, add all server orders for this user
+      serverUserOrders.forEach(o => {
+        const key = o.orderNumber?.toString() || o.id;
+        allOrdersMap.set(key, {
+          id: o.id,
+          orderNumber: o.orderNumber,
+          date: o.date,
+          total: o.total,
+          status: o.status,
+          itemsCount: o.items?.length || 0,
+          itemName: o.items?.[0]?.product?.name || "Boutique Order",
+          email: o.shippingEmail,
+          items: o.items
+        });
+      });
+
+      // Next, merge local orders
+      local.forEach(localOrd => {
+        const key = localOrd.orderNumber?.toString() || localOrd.id;
         const liveOrd = orders.find(o => o.orderNumber?.toString() === localOrd.orderNumber?.toString() || o.id === localOrd.id);
+        
         if (liveOrd) {
-          return {
+          allOrdersMap.set(key, {
             ...localOrd,
+            id: liveOrd.id,
+            orderNumber: liveOrd.orderNumber,
+            date: liveOrd.date || localOrd.date,
             status: liveOrd.status,
             items: liveOrd.items || localOrd.items,
             total: liveOrd.total || localOrd.total,
-          };
+            email: liveOrd.shippingEmail || localOrd.email
+          });
+        } else {
+          if (!allOrdersMap.has(key)) {
+            allOrdersMap.set(key, localOrd);
+          }
         }
-        return localOrd;
       });
+
+      return Array.from(allOrdersMap.values());
     } catch (e) {
       return [];
     }
-  }, [orders, ordersVersion]);
+  }, [orders, ordersVersion, user]);
 
   const handleTrackOrder = (e?: React.FormEvent, customQuery?: string) => {
     if (e) e.preventDefault();
@@ -642,6 +683,9 @@ export default function App() {
         return p;
       });
     });
+    // Fetch fresh orders from backend server to display immediately
+    fetchOrders();
+    setOrdersVersion(v => v + 1);
   };
 
   // Favorite operations
