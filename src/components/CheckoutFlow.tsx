@@ -77,7 +77,7 @@ export default function CheckoutFlow({
     return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   };
 
-  const handleWhatsAppSubmit = () => {
+  const handleWhatsAppSubmit = async () => {
     const orderNum = generatedOrderNumber || ("VR-9830" + Math.floor(Math.random() * 900 + 100));
     setGeneratedOrderNumber(orderNum);
 
@@ -166,11 +166,15 @@ export default function CheckoutFlow({
     };
 
     // Save order on backend server for real-time admin sync
-    fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(fullOrderDetails),
-    }).catch((err) => console.error("Error saving order to server:", err));
+    try {
+      await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fullOrderDetails),
+      });
+    } catch (err) {
+      console.error("Error saving order to server:", err);
+    }
 
     try {
       const savedOrders = localStorage.getItem("vero_orders");
@@ -269,7 +273,7 @@ export default function CheckoutFlow({
     setStep("payment");
   };
 
-  const handlePaymentSubmit = (e: React.FormEvent) => {
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -366,11 +370,15 @@ export default function CheckoutFlow({
     };
 
     // Save order on backend server for real-time admin sync
-    fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(fullOrderDetails),
-    }).catch((err) => console.error("Error saving order to server:", err));
+    try {
+      await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fullOrderDetails),
+      });
+    } catch (err) {
+      console.error("Error saving order to server:", err);
+    }
 
     try {
       const savedOrders = localStorage.getItem("vero_orders");
