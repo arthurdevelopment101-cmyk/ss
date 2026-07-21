@@ -1,0 +1,275 @@
+[
+  {
+    "id": "bespoke-html-page",
+    "name": "Bespoke Semantic HTML Page",
+    "categoryName": "HTML",
+    "categoryId": "html",
+    "price": 1200,
+    "image": "images/sculpted-aurelian-ring.jpg",
+    "secondaryImages": [
+      "images/sculpted-aurelian-ring.jpg",
+      "images/sculpted-aurelian-ring-2.jpg",
+      "images/sculpted-aurelian-ring-3.jpg",
+      "images/sculpted-aurelian-ring-4.jpg"
+    ],
+    "tagline": "\"The foundation of the web, engineered with absolute precision.\"",
+    "description": "Hand-crafted, ultra-lightweight, and fully accessible W3C-compliant semantic HTML structure. Engineered with the highest-grade search engine optimization protocols and clean markup.",
+    "materialOptions": [
+      "#E5D5BC",
+      "#E5E4E2"
+    ],
+    "sizeOptions": [
+      "Landing Page",
+      "Multi-Page UI"
+    ],
+    "details": [
+      "W3C-Validated clean markup structures",
+      "Fully accessible (WCAG 2.1 AA compliant)",
+      "SEO semantic tag optimization",
+      "Ultra-lightweight footprint (<10KB total weight)",
+      "100% hand-written code, absolutely zero drag-and-drop builders"
+    ],
+    "craftsmanship": "Each markup template is hand-crafted and validated across 40 structural check-points. We treat HTML structure as the fine jewelry of web architecture, ensuring clean nesting and semantic perfection."
+  },
+  {
+    "id": "bulletproof-email-template",
+    "name": "Bulletproof HTML Email Layout",
+    "categoryName": "HTML",
+    "categoryId": "html",
+    "price": 850,
+    "image": "images/geometric-aura.jpg",
+    "secondaryImages": [
+      "images/geometric-aura.jpg"
+    ],
+    "tagline": "\"Clean structured layouts that render beautifully in any mailbox.\"",
+    "description": "Responsive email templates rigorously tested across 70+ email clients (including Outlook, Apple Mail, and Gmail) to guarantee pixel-perfect rendering for your premium campaigns.",
+    "materialOptions": [
+      "#E5D5BC",
+      "#E5E4E2"
+    ],
+    "sizeOptions": [
+      "Newsletter",
+      "Transactional Email"
+    ],
+    "details": [
+      "Inline CSS styling pre-configured and minified",
+      "Tested on modern Litmus and Email on Acid platforms",
+      "Full dark-mode rendering support",
+      "Custom dynamic variables placeholders ready for integration"
+    ]
+  },
+  {
+    "id": "tailwind-design-system",
+    "name": "Modern Tailwind CSS Design System",
+    "categoryName": "CSS",
+    "categoryId": "css",
+    "price": 1800,
+    "image": "images/essential-cardholder.jpg",
+    "secondaryImages": [
+      "images/essential-cardholder.jpg"
+    ],
+    "tagline": "\"Utility-first elegance designed for high responsiveness and fast loading.\"",
+    "description": "Bespoke, hand-written utility layout and styling configuration using Tailwind CSS. Includes custom-crafted spacing, responsive variables, and a cohesive typography layout tailored to your brand.",
+    "materialOptions": [
+      "#211B12",
+      "#625E56"
+    ],
+    "sizeOptions": [
+      "Single-Page Config",
+      "Full App UI Kit"
+    ],
+    "details": [
+      "Custom tailwind.config setup with fluid scaling",
+      "Fully responsive layout definitions (sm, md, lg, xl)",
+      "A11y high contrast color validation",
+      "Tree-shaked optimized file size with post-css configuration"
+    ]
+  },
+  {
+    "id": "css-hardware-animations",
+    "name": "Advanced CSS Custom Keyframes",
+    "categoryName": "CSS",
+    "categoryId": "css",
+    "price": 1400,
+    "image": "images/eternal-bangle.jpg",
+    "secondaryImages": [
+      "images/eternal-bangle.jpg"
+    ],
+    "tagline": "\"Fluid, high-performance interactions that capture the user's focus.\"",
+    "description": "Buttery-smooth 60fps animations crafted strictly using vanilla CSS and hardware-accelerated transforms. Perfect for scrolling visual effects and custom hover transitions.",
+    "materialOptions": [
+      "#E5D5BC",
+      "#E5E4E2"
+    ],
+    "sizeOptions": [
+      "Micro-interactions",
+      "Full Scroll Effects"
+    ],
+    "details": [
+      "GPU hardware acceleration enabled for absolute smoothness",
+      "Zero external animation libraries required",
+      "Full cross-browser prefix compatibility",
+      "Extremely optimized runtime rendering profile"
+    ]
+  },
+  {
+    "id": "vanilla-js-app",
+    "name": "Vanilla JS Interactive App",
+    "categoryName": "JavaScript",
+    "categoryId": "javascript",
+    "price": 2500,
+    "image": "images/classic-heirloom-timepiece.jpg",
+    "secondaryImages": [
+      "images/classic-heirloom-timepiece.jpg"
+    ],
+    "tagline": "\"Optimized, stateful interactions powered by clean native JavaScript.\"",
+    "description": "A lightweight dynamic experience built strictly with optimized vanilla ES6+ JS. No heavy frameworks, just raw speed, clean scoping, and reactive DOM manipulation.",
+    "materialOptions": [
+      "#E5D5BC"
+    ],
+    "sizeOptions": [
+      "Interactive Widget",
+      "Custom State Engine"
+    ],
+    "details": [
+      "ES6+ Native modules structure",
+      "Strictly zero external dependency footprint",
+      "Secure DOM manipulation and sanitization techniques",
+      "Custom lightweight client-side state manager"
+    ]
+  },
+  {
+    "id": "js-api-engine",
+    "name": "Custom JavaScript API Integration Engine",
+    "categoryName": "JavaScript",
+    "categoryId": "javascript",
+    "price": 2200,
+    "image": "images/v-signature-bracelet.jpg",
+    "secondaryImages": [
+      "images/v-signature-bracelet.jpg"
+    ],
+    "tagline": "\"Reliable data streaming, seamlessly processed in the browser.\"",
+    "description": "A custom integration engine designed to fetch, normalize, and render live feeds with advanced error boundaries, asynchronous flow, and request caching capabilities.",
+    "materialOptions": [
+      "#625E56",
+      "#211B12"
+    ],
+    "sizeOptions": [
+      "REST API Engine",
+      "WebSocket Live Stream"
+    ],
+    "details": [
+      "Advanced error retry algorithms with exponential backoff",
+      "Response caching and client-side storage integration",
+      "Highly optimized JSON payload parsing and performance monitoring",
+      "Full asynchronous flow architecture using async/await"
+    ]
+  },
+  {
+    "id": "premium-react-spa",
+    "name": "Premium React Single Page App",
+    "categoryName": "React",
+    "categoryId": "react",
+    "price": 4800,
+    "image": "images/lucent-chain.jpg",
+    "secondaryImages": [
+      "images/lucent-chain.jpg"
+    ],
+    "tagline": "\"Stunning modern UI built with declarative, high-performance React code.\"",
+    "description": "Next-gen React single-page application built with modern functional components, state-of-the-art hooks, fine-tuned bundle sizes, and state transitions using Motion.",
+    "materialOptions": [
+      "#E5E4E2",
+      "#E5D5BC"
+    ],
+    "sizeOptions": [
+      "Lite Web App",
+      "Full SaaS Portal"
+    ],
+    "details": [
+      "React 19 & Vite ultra-fast rendering architecture",
+      "Optimized React hooks state management and Context API",
+      "Fluid, responsive motion layout animations",
+      "Strict type safety and robust component modularity"
+    ]
+  },
+  {
+    "id": "react-analytics-dashboard",
+    "name": "Bespoke React Dashboard & Analytics Suite",
+    "categoryName": "React",
+    "categoryId": "react",
+    "price": 3500,
+    "image": "images/vero-chronos.jpg",
+    "secondaryImages": [
+      "images/vero-chronos.jpg"
+    ],
+    "tagline": "\"Turn complex datasets into stunning interactive stories on the screen.\"",
+    "description": "An executive-level data visualization platform utilizing Recharts and fluid motion transitions to render stunning charts, graphs, and live performance metrics.",
+    "materialOptions": [
+      "#E5D5BC"
+    ],
+    "sizeOptions": [
+      "Standard Console",
+      "Enterprise BI View"
+    ],
+    "details": [
+      "High performance Recharts SVG rendering integration",
+      "Custom tooltips, hover states, and legend filters",
+      "Responsive container scaling and real-time updates",
+      "Lazy-loaded widgets for ultra-fast initial paint"
+    ]
+  },
+  {
+    "id": "django-secure-api",
+    "name": "Django Secure Enterprise REST API",
+    "categoryName": "Backend Python-Django",
+    "categoryId": "python-django",
+    "price": 6500,
+    "image": "images/heritage-watch-4.jpg",
+    "secondaryImages": [
+      "images/heritage-watch-4.jpg"
+    ],
+    "tagline": "\"Secure, highly scalable backend architectures built with Pythonic excellence.\"",
+    "description": "An enterprise-grade secure REST API utilizing Django Rest Framework (DRF), optimized database indexing, JWT token authentication, and custom middleware protection layers.",
+    "materialOptions": [
+      "#5F5E5B",
+      "#E5D5BC"
+    ],
+    "sizeOptions": [
+      "Standard API",
+      "Enterprise Scale System"
+    ],
+    "details": [
+      "Django Rest Framework (DRF) structure with serializers",
+      "JWT Authentication and fine-grained role permissions",
+      "Optimized PostgreSQL/SQLite database query nesting",
+      "Full Swagger/OpenAPI interactive documentation auto-generation"
+    ]
+  },
+  {
+    "id": "django-custom-admin",
+    "name": "Django Custom Admin Backoffice",
+    "categoryName": "Backend Python-Django",
+    "categoryId": "python-django",
+    "price": 5500,
+    "image": "images/artisan-watch-roll.jpg",
+    "secondaryImages": [
+      "images/artisan-watch-roll.jpg"
+    ],
+    "tagline": "\"Maximum administrative power and database security unified in Python.\"",
+    "description": "A custom-crafted Django administration panel with advanced analytical dashboard views, secure multi-user role access controls, and automated reporting systems.",
+    "materialOptions": [
+      "#625E56",
+      "#E5D5BC"
+    ],
+    "sizeOptions": [
+      "Admin Dashboard",
+      "Full Backoffice ERP"
+    ],
+    "details": [
+      "Fully customized Django Admin dashboard templates",
+      "Role-Based Access Control (RBAC) database groups",
+      "Automated CSV/PDF report compilation and export utilities",
+      "Database activity logs and custom action audit triggers"
+    ]
+  }
+]

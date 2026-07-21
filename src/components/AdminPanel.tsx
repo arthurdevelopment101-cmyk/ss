@@ -191,7 +191,7 @@ export default function AdminPanel({
 
   // Form Fields
   const [name, setName] = React.useState("");
-  const [categoryId, setCategoryId] = React.useState("fine-jewelry");
+  const [categoryId, setCategoryId] = React.useState("html");
   const [price, setPrice] = React.useState<number | "">("");
   const [imageUrl, setImageUrl] = React.useState("");
   const [additionalImages, setAdditionalImages] = React.useState<string[]>([]);
@@ -199,8 +199,8 @@ export default function AdminPanel({
   const [description, setDescription] = React.useState("");
   const [isNew, setIsNew] = React.useState(false);
   const [materialOptions, setMaterialOptions] = React.useState<string>("#E5D5BC, #E5E4E2");
-  const [sizeOptions, setSizeOptions] = React.useState<string>("06, 07, 08, 09");
-  const [details, setDetails] = React.useState<string>("18k Solid Recycled Gold, Hand-finished matte satin luster");
+  const [sizeOptions, setSizeOptions] = React.useState<string>("Standard, Premium");
+  const [details, setDetails] = React.useState<string>("W3C-Validated clean markup structures, Fully accessible (WCAG 2.1 AA compliant)");
   const [craftsmanship, setCraftsmanship] = React.useState("");
   const [stock, setStock] = React.useState<number | "">("");
 
@@ -244,7 +244,7 @@ export default function AdminPanel({
 
   const resetForm = () => {
     setName("");
-    setCategoryId("fine-jewelry");
+    setCategoryId("html");
     setPrice("");
     setImageUrl("");
     setAdditionalImages([]);
@@ -252,8 +252,8 @@ export default function AdminPanel({
     setDescription("");
     setIsNew(false);
     setMaterialOptions("#E5D5BC, #E5E4E2");
-    setSizeOptions("06, 07, 08, 09");
-    setDetails("18k Solid Recycled Gold, Hand-finished matte-satin luster");
+    setSizeOptions("Standard, Premium");
+    setDetails("W3C-Validated clean markup structures, Fully accessible (WCAG 2.1 AA compliant)");
     setCraftsmanship("");
     setStock("");
   };

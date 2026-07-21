@@ -3,6 +3,7 @@ import { X, Check, Loader2, Sparkles, Shield, Award, User, ArrowRight } from "lu
 import { motion, AnimatePresence } from "motion/react";
 import { UserProfile, getTierFromSpent } from "../types";
 import UserAvatar from "./UserAvatar";
+import { isSupabaseConfigured, authService } from "../services/supabaseService";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -79,9 +80,18 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModal
 
   const handleProviderSelect = (provider: "google" | "facebook" | "apple") => {
     setSelectedProvider(provider);
-    setStep("loading");
     setErrorMessage("");
 
+    if (isSupabaseConfigured() && provider === "google") {
+      setStep("loading");
+      authService.signInWithGoogle().catch((err) => {
+        setErrorMessage(err.message || "Google Sign-In failed.");
+        setStep("select");
+      });
+      return;
+    }
+
+    setStep("loading");
     // Simulate standard OAuth secure handshake
     setTimeout(() => {
       const preset = PRESET_USERS[provider];
@@ -112,7 +122,38 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModal
       return;
     }
 
-    // Get existing local website accounts
+    // Supabase Auth Path
+    if (isSupabaseConfigured()) {
+      setStep("loading");
+      if (websiteSubMode === "signup") {
+        setSelectedProvider("email");
+        setCustomEmail(emailInput.trim());
+        setCustomName(emailInput.split("@")[0].charAt(0).toUpperCase() + emailInput.split("@")[0].slice(1));
+        setCustomAvatar("default");
+        setStep("customize");
+      } else {
+        authService.signIn(emailInput.trim(), passwordInput)
+          .then((res) => {
+            if (res.user) {
+              setStep("success");
+              setTimeout(() => {
+                onLoginSuccess(res.user!);
+                onClose();
+              }, 1500);
+            } else {
+              setErrorMessage("خطأ في جلب بيانات الحساب / Error loading profile.");
+              setStep("select");
+            }
+          })
+          .catch((err: any) => {
+            setErrorMessage(err.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة / Invalid credentials.");
+            setStep("select");
+          });
+      }
+      return;
+    }
+
+    // Local Fallback Path
     const savedAccountsStr = localStorage.getItem("vero_website_accounts");
     let accounts: Record<string, { name: string; email: string; tier: UserProfile["tier"]; avatar: string; pass: string }> = {};
     if (savedAccountsStr) {
@@ -175,10 +216,39 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModal
   };
 
   const handleCompleteSignIn = () => {
-    setStep("success");
     const finalEmail = customEmail || emailInput.trim();
     const finalName = customName || "VERO Collector";
-    
+
+    // Supabase Sign-Up Execution
+    if (isSupabaseConfigured() && selectedProvider === "email" && websiteSubMode === "signup") {
+      setStep("loading");
+      authService.signUp(finalEmail, passwordInput, finalName)
+        .then(() => {
+          const loggedInUser: UserProfile = {
+            name: finalName,
+            email: finalEmail,
+            avatar: customAvatar,
+            provider: "email",
+            tier: "Bronze",
+            loyaltyPoints: 0,
+            totalSpent: 0,
+            joinedDate: "July 2026",
+            redeemedRewards: []
+          };
+          setStep("success");
+          setTimeout(() => {
+            onLoginSuccess(loggedInUser);
+            onClose();
+          }, 1500);
+        })
+        .catch((err: any) => {
+          setErrorMessage(err.message || "فشل إنشاء الحساب / Registration failed.");
+          setStep("customize");
+        });
+      return;
+    }
+
+    setStep("success");
     let initialSpent = 0;
     let initialPoints = 0;
 

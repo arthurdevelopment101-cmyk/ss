@@ -1,6 +1,7 @@
 import React from "react";
-import { Menu, ShoppingBag, Search, Heart, User, Sparkles, ShieldCheck } from "lucide-react";
+import { Menu, ShoppingBag, Search, Heart, User, Sparkles, ShieldCheck, Database } from "lucide-react";
 import { UserProfile } from "../types";
+
 import UserProfileDropdown from "./UserProfileDropdown";
 import UserAvatar from "./UserAvatar";
 
@@ -84,6 +85,15 @@ export default function Header({
               }`}
             >
               Our Story
+            </button>
+            <button
+              onClick={() => setActiveTab("supabase")}
+              className={`hover:text-brand-gold transition-colors flex items-center gap-1.5 ${
+                activeTab === "supabase" ? "text-brand-gold font-semibold" : ""
+              }`}
+            >
+              <Database className="w-3.5 h-3.5 text-brand-gold" />
+              <span>Supabase</span>
             </button>
             {(user?.tier === "Platinum" || user?.tier === "Diamond") && (
               <button

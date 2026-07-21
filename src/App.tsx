@@ -39,6 +39,9 @@ import BrandPillars from "./components/BrandPillars";
 import CheckoutFlow from "./components/CheckoutFlow";
 import AdminPanel from "./components/AdminPanel";
 import AuthModal from "./components/AuthModal";
+import SupabasePlayground from "./components/SupabasePlayground";
+import { isSupabaseConfigured, supabase, cartService, wishlistService, authService } from "./services/supabaseService";
+
 
 const LOUNGE_PRODUCTS: Product[] = [
   {
@@ -142,12 +145,30 @@ export default function App() {
     }
   }, [activeTab, user]);
 
-  const handleLoginSuccess = (profile: UserProfile) => {
+  const handleLoginSuccess = async (profile: UserProfile) => {
     setUser(profile);
     localStorage.setItem("vero_user", JSON.stringify(profile));
+
+    if (isSupabaseConfigured() && profile.email) {
+      try {
+        const { data: { user: authUser } } = await supabase!.auth.getUser();
+        if (authUser) {
+          const dbCart = await cartService.getCart(authUser.id);
+          if (dbCart && dbCart.length > 0) {
+            setCart(dbCart);
+          }
+          const dbWishlist = await wishlistService.getWishlist(authUser.id);
+          if (dbWishlist && dbWishlist.length > 0) {
+            setFavorites(dbWishlist);
+          }
+        }
+      } catch (e) {
+        console.error("Error loading user data from Supabase:", e);
+      }
+    }
   };
 
-  const handleUpdateUser = (updatedProfile: UserProfile) => {
+  const handleUpdateUser = async (updatedProfile: UserProfile) => {
     // Dynamically calculate tier based on totalSpent according to user request
     const spent = updatedProfile.totalSpent || 0;
     const finalTier = getTierFromSpent(spent);
@@ -159,6 +180,17 @@ export default function App() {
 
     setUser(resolvedProfile);
     localStorage.setItem("vero_user", JSON.stringify(resolvedProfile));
+
+    if (isSupabaseConfigured()) {
+      try {
+        const { data: { user: authUser } } = await supabase!.auth.getUser();
+        if (authUser) {
+          await authService.updateProfile(authUser.id, resolvedProfile);
+        }
+      } catch (e) {
+        console.error("Error updating profile in Supabase:", e);
+      }
+    }
     
     // Also update in website accounts if registered
     if (resolvedProfile.provider === "email") {
@@ -189,6 +221,11 @@ export default function App() {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem("vero_user");
+    setCart([]);
+    setFavorites([]);
+    if (isSupabaseConfigured()) {
+      authService.signOut().catch(console.error);
+    }
   };
 
   // Dynamic products list with server database integration
@@ -430,18 +467,68 @@ export default function App() {
     craftsmanship: false,
   });
 
-  // Sync state with localStorage
+  // Sync state with localStorage and Supabase
   React.useEffect(() => {
     localStorage.setItem("vero_cart", JSON.stringify(cart));
-  }, [cart]);
+    if (isSupabaseConfigured() && user) {
+      supabase!.auth.getUser().then(({ data: { user: authUser } }) => {
+        if (authUser) {
+          cartService.syncCart(authUser.id, cart).catch(console.error);
+        }
+      });
+    }
+  }, [cart, user]);
 
   React.useEffect(() => {
     localStorage.setItem("vero_favorites", JSON.stringify(favorites));
-  }, [favorites]);
+    if (isSupabaseConfigured() && user) {
+      supabase!.auth.getUser().then(({ data: { user: authUser } }) => {
+        if (authUser) {
+          supabase!.from("wishlist").delete().eq("user_id", authUser.id).then(() => {
+            if (favorites.length > 0) {
+              const rows = favorites.map(id => ({ user_id: authUser.id, product_id: id }));
+              supabase!.from("wishlist").insert(rows).then(
+                () => {},
+                (err) => console.error("Error syncing wishlist:", err)
+              );
+            }
+          });
+        }
+      });
+    }
+  }, [favorites, user]);
 
   React.useEffect(() => {
     localStorage.setItem("vero_products", JSON.stringify(products));
   }, [products]);
+
+  React.useEffect(() => {
+    if (isSupabaseConfigured()) {
+      const { data: { subscription } } = supabase!.auth.onAuthStateChange(async (event, session) => {
+        if (session?.user) {
+          const profile = await authService.getProfile(session.user.id);
+          if (profile) {
+            setUser(profile);
+            localStorage.setItem("vero_user", JSON.stringify(profile));
+            
+            // Sync cart & favorites
+            const dbCart = await cartService.getCart(session.user.id);
+            if (dbCart && dbCart.length > 0) {
+              setCart(dbCart);
+            }
+            const dbWishlist = await wishlistService.getWishlist(session.user.id);
+            if (dbWishlist && dbWishlist.length > 0) {
+              setFavorites(dbWishlist);
+            }
+          }
+        }
+      });
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    }
+  }, []);
 
   const handleResetDatabase = async () => {
     localStorage.removeItem("vero_products");
@@ -704,7 +791,7 @@ export default function App() {
 
   // Cart calculations
   const cartSubtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const deliveryFee = cart.length > 0 ? 150 : 0; // Flat-rate delivery fee
+  const deliveryFee = cart.length > 0 ? 50 : 0; // Flat-rate delivery fee
   
   // Promo code discounts
   const discountMultiplier = activePromo === "WELCOME10" ? 0.1 : activePromo === "VERO" ? 0.15 : 0;
@@ -920,10 +1007,10 @@ export default function App() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:h-[650px]">
-                    {/* Category: Fine Jewelry */}
+                    {/* Category: HTML */}
                     <div
                       onClick={() => {
-                        setSelectedCategory("fine-jewelry");
+                        setSelectedCategory("html");
                         setActiveTab("shop");
                         window.scrollTo({ top: 300, behavior: "smooth" });
                       }}
@@ -931,25 +1018,25 @@ export default function App() {
                     >
                       <img
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7ddR-XGRFF7ZwjqRe3Lb-HvaihviUNpTFMTo10PZQ_-iWX3dHYb_j9NphUXFfq1RLIVS5ulRSzV-s712e4G7vtkJcHA0muDtY9DHEbI_zQeXANvKStKeeksritCSGP5ih6oc_mDzIpJo-JK5lgL9ZI9pc4qOe6-fZnEle31gNmW3Ra9tpqcoVs_RDpioKwvUn4j-9P5j6w_lfSUUHJjGBkUWuw94qrQAEzt1RoGMnNYlGOJnyMZ7U2W6oqjGuTXTYxge8Try-zWs"
-                        alt="Fine Jewelry"
+                        alt="HTML Coding"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
                         referrerPolicy="no-referrer"
                       />
                       <div className="absolute inset-0 bg-[#211b12]/10 group-hover:bg-[#211b12]/30 transition-colors duration-700" />
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6 text-center">
-                        <h3 className="font-serif text-3xl md:text-4xl tracking-[0.1em] mb-4 font-light">
-                          Fine Jewelry
+                        <h3 className="font-serif text-3xl md:text-4xl tracking-[0.1em] mb-4 font-light text-shadow">
+                          HTML Collection
                         </h3>
                         <span className="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 border border-white px-8 py-3.5 text-xs font-semibold tracking-[0.15em] uppercase">
-                          Shop The Collection
+                          Explore Engineering / تصفح
                         </span>
                       </div>
                     </div>
 
-                    {/* Category: Timepieces */}
+                    {/* Category: React */}
                     <div
                       onClick={() => {
-                        setSelectedCategory("timepieces");
+                        setSelectedCategory("react");
                         setActiveTab("shop");
                         window.scrollTo({ top: 300, behavior: "smooth" });
                       }}
@@ -957,25 +1044,25 @@ export default function App() {
                     >
                       <img
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHURVDMw0Ut_yNnemHeLgqN9kEmRJy9KfyIJhWGm36fQh-CMtrO0pGYuaCr4MR-OaDy0sUnfzCwvRWYY9815RVkpasZq00PZ0fRbmOmCVpkPwSWKRtiicrCUREgDhVRGMuHYa792wqM27VJFjYjxLBhHEpkVf0Ipvb3HquyCydhbrE5uPWIC5KS6E4w4d31wBTOnNQIu3ooZafSZ0qWewaHaQeiPuHaoRpnPOY5j01Hhjk48HWuTgKuMfPyIs5QbInR7O3tUJq5c8"
-                        alt="Timepieces"
+                        alt="React Applications"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
                         referrerPolicy="no-referrer"
                       />
                       <div className="absolute inset-0 bg-[#211b12]/10 group-hover:bg-[#211b12]/30 transition-colors duration-700" />
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6 text-center">
-                        <h3 className="font-serif text-3xl tracking-[0.1em] mb-4 font-light">
-                          Timepieces
+                        <h3 className="font-serif text-3xl tracking-[0.1em] mb-4 font-light text-shadow">
+                          React Native &amp; Web
                         </h3>
                         <span className="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 border border-white px-8 py-3.5 text-xs font-semibold tracking-[0.15em] uppercase">
-                          Discover
+                          Discover React / رياكت
                         </span>
                       </div>
                     </div>
 
-                    {/* Category: Leather Goods */}
+                    {/* Category: CSS */}
                     <div
                       onClick={() => {
-                        setSelectedCategory("leather-goods");
+                        setSelectedCategory("css");
                         setActiveTab("shop");
                         window.scrollTo({ top: 300, behavior: "smooth" });
                       }}
@@ -983,26 +1070,25 @@ export default function App() {
                     >
                       <img
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoQPdv1Jz-RjB7b1hjgtGz63JLAFwfHrviFOr5ny4f6MFDkZxOQHHTjelEbjGpcI5RvtXjohZvo8yjwqrKVDJG_6wpfjn26-AFirT4svWQONukVwV2KLBxWem4yr7Ey28wxvNJXeFlKCpGqoT_PXUZ3yHVpvS7-0ASt7bKmz8N3dAwt6XznGpD02rnAxlpnzC8jT9H_DIEHfTWzCnCRQA2GHwO-xljT6UvWXNkBEMwG2F3fuvp53Fw3u3cXqeNnjEM3uiSoHn5P7k"
-                        alt="Leather Goods"
+                        alt="CSS Styling"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
                         referrerPolicy="no-referrer"
                       />
                       <div className="absolute inset-0 bg-[#211b12]/10 group-hover:bg-[#211b12]/30 transition-colors duration-700" />
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6 text-center">
-                        <h3 className="font-serif text-3xl tracking-[0.1em] mb-4 font-light">
-                          Leather Goods
+                        <h3 className="font-serif text-3xl tracking-[0.1em] mb-4 font-light text-shadow">
+                          CSS &amp; Tailwind
                         </h3>
                         <span className="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 border border-white px-8 py-3.5 text-xs font-semibold tracking-[0.15em] uppercase">
-                          View All
+                          View Styles / تصميم
                         </span>
                       </div>
                     </div>
 
-                    {/* Category: Necklaces/Essentials */}
+                    {/* Category: Backend Python-Django */}
                     <div
                       onClick={() => {
-                        setSelectedCategory("all");
-                        setSearchQuery("Aurelian");
+                        setSelectedCategory("python-django");
                         setActiveTab("shop");
                         window.scrollTo({ top: 300, behavior: "smooth" });
                       }}
@@ -1010,17 +1096,17 @@ export default function App() {
                     >
                       <img
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_4xPadl5w6Pl2wmap9TNWjuW3eRqmSaee8UcVUYb5Ob0tjxyVXXgSUz8bd800TgShznRuwLsCSE8fL8g54lW8D6Y2Wqn77Y3VnnDy11ZQQyS78UrFyUgxqRXe83BtXdaR7o05YC071Tjfyge5uII8vI9eb_n0zITggflZzz8_ocIceRDAsQovQqPZTN6SXT9FkEnH750_FvFUxz-___-L_RW-wCIyddPds8SWGNUvJZlb-z3tgbVqUqsnmttQOxLDZXqdfrdHuOs"
-                        alt="The Essentials"
+                        alt="Python-Django Backend"
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
                         referrerPolicy="no-referrer"
                       />
                       <div className="absolute inset-0 bg-[#211b12]/10 group-hover:bg-[#211b12]/30 transition-colors duration-700" />
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6 text-center">
-                        <h3 className="font-serif text-3xl md:text-4xl tracking-[0.1em] mb-4 font-light">
-                          The Essentials
+                        <h3 className="font-serif text-3xl md:text-4xl tracking-[0.1em] mb-4 font-light text-shadow">
+                          Python-Django Backend
                         </h3>
                         <span className="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 border border-white px-8 py-3.5 text-xs font-semibold tracking-[0.15em] uppercase">
-                          Shop Now
+                          Build Backend / بايثون ديجانجو
                         </span>
                       </div>
                     </div>
@@ -1531,7 +1617,7 @@ export default function App() {
                 </div>
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-                  {PRODUCTS.filter((p) => p.id !== selectedProduct.id)
+                  {products.filter((p) => p.id !== selectedProduct.id)
                     .slice(0, 4)
                     .map((rec) => (
                       <ProductCard
@@ -1573,7 +1659,7 @@ export default function App() {
 
               {favorites.length > 0 ? (
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-16">
-                  {PRODUCTS.filter((p) => favorites.includes(p.id)).map((product) => (
+                  {products.filter((p) => favorites.includes(p.id)).map((product) => (
                     <ProductCard
                       key={product.id}
                       product={product}
@@ -2437,6 +2523,18 @@ export default function App() {
                   </motion.div>
                 );
               })}
+            </motion.div>
+          )}
+
+          {activeTab === "supabase" && (
+            <motion.div
+              key="supabase"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="max-w-7xl mx-auto px-6 py-12 space-y-12 mt-16 md:mt-24"
+            >
+              <SupabasePlayground />
             </motion.div>
           )}
 
